@@ -13,6 +13,10 @@ A reproducible research interface for gastrointestinal endoscopy images. It comb
 
 This is a grounded multimodal interface, not an end-to-end generative medical VLM.
 
+Generative Qwen development is isolated on the `qwen-integration` branch. See
+[the Qwen integration roadmap](docs/QWEN_INTEGRATION.md) for the leakage-safe
+data preparation, native Qwen3-VL baseline, and planned SO400M-to-Qwen bridge.
+
 ![Interface overview](assets/interface_overview.png)
 
 ## Responsible use

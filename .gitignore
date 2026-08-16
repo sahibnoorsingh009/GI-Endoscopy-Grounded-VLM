@@ -7,6 +7,7 @@ __pycache__/
 
 .venv/
 venv/
+.qwen-venv/
 .env
 
 checkpoints/
@@ -19,6 +20,7 @@ pip-cache/
 *.onnx
 
 outputs/
+qwen-data/
 logs/
 *.log
 .DS_Store

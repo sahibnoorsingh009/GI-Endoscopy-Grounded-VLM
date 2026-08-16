@@ -204,11 +204,16 @@ def write_confusion(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Evaluate Qwen3-VL zero-shot on a frozen HyperKvasir split."
+        description="Evaluate base or LoRA-adapted Qwen3-VL on HyperKvasir."
     )
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--model-id", default=DEFAULT_MODEL_ID)
+    parser.add_argument(
+        "--adapter-path",
+        type=Path,
+        help="Optional PEFT LoRA adapter directory to load over the base model.",
+    )
     parser.add_argument("--split", choices=("val", "test"), default="val")
     parser.add_argument(
         "--allow-test",
@@ -238,6 +243,13 @@ def main() -> None:
     data_root = args.data_root.expanduser().resolve()
     output_dir = args.output_dir.expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    adapter_path = None
+    if args.adapter_path is not None:
+        adapter_path = args.adapter_path.expanduser().resolve()
+        if not (adapter_path / "adapter_config.json").is_file():
+            raise FileNotFoundError(
+                f"PEFT adapter_config.json not found under {adapter_path}"
+            )
 
     train_rows = read_csv(data_root / "index" / "hyperkvasir_train.csv")
     evaluation_rows = read_csv(
@@ -270,7 +282,12 @@ def main() -> None:
         dtype=torch.bfloat16,
         device_map="auto",
         attn_implementation="sdpa",
-    ).eval()
+    )
+    if adapter_path is not None:
+        from peft import PeftModel
+
+        model = PeftModel.from_pretrained(model, adapter_path, is_trainable=False)
+    model.eval()
 
     for index, row in enumerate(selected_rows, start=1):
         image_id = row["image_id"]
@@ -365,6 +382,7 @@ def main() -> None:
     metrics.update(
         {
             "model_id": args.model_id,
+            "adapter_path": str(adapter_path) if adapter_path is not None else None,
             "split": args.split,
             "selection": "full" if args.limit is None else "balanced_subset",
             "requested_limit": args.limit,

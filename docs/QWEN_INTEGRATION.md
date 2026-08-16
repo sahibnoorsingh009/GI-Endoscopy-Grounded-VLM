@@ -46,6 +46,25 @@ The generated structure is:
 The JSON follows the official Qwen VL conversation contract: one `image` path,
 one matching `<image>` tag, and alternating `human`/`gpt` turns.
 
+Create the isolated environment and evaluate a balanced 100-image validation
+pilot before launching the full validation run:
+
+```bash
+python -m venv /workspace/venvs/qwen3vl
+source /workspace/venvs/qwen3vl/bin/activate
+pip install -r requirements-qwen.txt
+
+python scripts/evaluate_qwen_zero_shot.py \
+  --data-root /workspace/qwen-data/hyperkvasir \
+  --output-dir /workspace/qwen-results/zero-shot-val-pilot100 \
+  --split val \
+  --limit 100
+```
+
+The test split remains untouched during baseline development and adapter
+selection. Evaluation writes each prediction immediately to JSONL and supports
+safe continuation with `--resume`.
+
 ## Phase 2: trained SO400M to Qwen bridge
 
 The proposed research model will connect frozen SO400M patch tokens to a Qwen3

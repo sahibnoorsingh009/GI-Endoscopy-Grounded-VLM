@@ -15,7 +15,9 @@ REQUIRED_PATHS = (
     "scripts/setup_windows.ps1",
     "scripts/setup_runpod.sh",
     "scripts/build_qwen_manifest.py",
+    "scripts/evaluate_qwen_zero_shot.py",
     "docs/QWEN_INTEGRATION.md",
+    "requirements-qwen.txt",
 )
 FORBIDDEN_WEIGHT_SUFFIXES = {".pt", ".pth", ".ckpt", ".safetensors", ".onnx"}
 

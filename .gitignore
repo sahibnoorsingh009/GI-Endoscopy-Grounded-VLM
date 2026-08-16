@@ -21,6 +21,7 @@ pip-cache/
 
 outputs/
 qwen-data/
+qwen-results/
 logs/
 *.log
 .DS_Store

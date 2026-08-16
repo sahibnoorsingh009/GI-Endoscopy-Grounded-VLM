@@ -73,6 +73,48 @@ compared against the Phase 1 native-Qwen vision baseline. The validated seed-43
 segmenter initially remains an external expert that supplies masks, regions, and
 bounding boxes as grounded evidence.
 
+Phase 2 freezes all three previously selected components: Qwen3-VL-8B,
+the balanced native-vision LoRA selected at validation step 400, and the
+GI-trained SO400M encoder. Only the 36.7M-parameter token resampler/projector
+and its three DeepStack gates are optimized.
+
+Bridge alignment supervises only the first image-classification exchange in
+each training record. The later metadata response is intentionally excluded:
+under teacher forcing it can read the preceding ground-truth class label,
+creating a deceptively low loss without requiring visual alignment.
+
+First run a short bridge alignment pilot. This deliberately writes to a
+separate directory and does not read the validation or test split:
+
+```bash
+python scripts/train_qwen_bridge.py \
+  --output-dir /workspace/qwen-runs/so400m-bridge-pilot20-seed42 \
+  --qwen-adapter /workspace/qwen-runs/qwen3-vl-8b-lora-sqrt-balanced-seed42/checkpoint-400 \
+  --so400m-checkpoint "$SO400M_CKPT" \
+  --max-steps 20 \
+  --save-steps 10 \
+  --log-steps 1
+```
+
+If the loss and gradients remain finite, evaluate the pilot on a balanced
+100-image validation subset before launching the full one-epoch run:
+
+```bash
+python scripts/evaluate_qwen_bridge.py \
+  --data-root /workspace/qwen-data/hyperkvasir \
+  --output-dir /workspace/qwen-results/so400m-bridge-pilot20-val100 \
+  --qwen-adapter /workspace/qwen-runs/qwen3-vl-8b-lora-sqrt-balanced-seed42/checkpoint-400 \
+  --so400m-checkpoint "$SO400M_CKPT" \
+  --bridge-checkpoint /workspace/qwen-runs/so400m-bridge-pilot20-seed42/final \
+  --split val \
+  --limit 100
+```
+
+The pilot is a pipeline and learning-signal check, not a selected final model.
+The full run must start from a fresh bridge because the pilot uses a shortened
+cosine schedule. Interrupted full runs can continue exactly from their latest
+optimizer boundary with `--resume-from latest`.
+
 ## Claims
 
 Adding Qwen does not by itself make the system a foundation model. A foundation

@@ -16,6 +16,23 @@ from torch.utils.data import Dataset
 IGNORE_INDEX = -100
 
 
+def first_assistant_exchange(record: dict[str, Any]) -> dict[str, Any]:
+    """Keep only the image prompt and its first supervised response.
+
+    HyperKvasir annotations also contain a second metadata question. Its answer
+    follows the teacher-forced class label, so including it in bridge alignment
+    can make the loss look artificially small without improving image grounding.
+    """
+
+    conversations = record.get("conversations")
+    if not isinstance(conversations, list) or len(conversations) < 2:
+        raise ValueError("Expected at least one human/assistant exchange")
+    first, second = conversations[:2]
+    if first.get("from") != "human" or second.get("from") != "gpt":
+        raise ValueError("The first exchange must be human followed by gpt")
+    return {**record, "conversations": [first, second]}
+
+
 def annotation_to_messages(record: dict[str, Any]) -> list[dict[str, Any]]:
     messages: list[dict[str, Any]] = []
     image_markers = 0
@@ -142,6 +159,72 @@ def tokenize_bridge_conversation(
     return input_ids, labels
 
 
+def tokenize_bridge_prompt(
+    record: dict[str, Any],
+    tokenizer: Any,
+    *,
+    image_token_id: int,
+    num_queries: int,
+    max_length: int,
+) -> torch.Tensor:
+    """Tokenize one image/user prompt and append Qwen's generation prefix."""
+
+    messages = annotation_to_messages(record)
+    if any(message["role"] == "assistant" for message in messages):
+        raise ValueError("Inference prompts cannot contain assistant responses")
+    encoded = tokenizer.apply_chat_template(
+        messages,
+        tokenize=True,
+        add_generation_prompt=True,
+        return_tensors="pt",
+    )
+    if isinstance(encoded, dict):
+        encoded = encoded["input_ids"]
+    if not torch.is_tensor(encoded):
+        encoded = torch.tensor(encoded, dtype=torch.long)
+    input_ids = expand_image_tokens(
+        encoded.squeeze(0),
+        image_token_id=image_token_id,
+        num_queries=num_queries,
+    )
+    if input_ids.numel() > max_length:
+        raise ValueError(
+            f"Bridge prompt has {input_ids.numel()} tokens, exceeding {max_length}"
+        )
+    return input_ids
+
+
+def prepare_bridge_inference_example(
+    record: dict[str, Any],
+    *,
+    data_root: Path,
+    tokenizer: Any,
+    so400m_processor: Any,
+    image_token_id: int,
+    num_queries: int = 64,
+    max_length: int = 512,
+) -> dict[str, torch.Tensor]:
+    input_ids = tokenize_bridge_prompt(
+        record,
+        tokenizer,
+        image_token_id=image_token_id,
+        num_queries=num_queries,
+        max_length=max_length,
+    )
+    image_path = resolve_record_image(record, data_root)
+    with Image.open(image_path) as image_handle:
+        image = image_handle.convert("RGB")
+    pixel_values = so400m_processor(images=image, return_tensors="pt")[
+        "pixel_values"
+    ].squeeze(0)
+    return {
+        "input_ids": input_ids.unsqueeze(0),
+        "attention_mask": torch.ones_like(input_ids).unsqueeze(0),
+        "pixel_values": pixel_values.unsqueeze(0),
+        "image_grid_thw": image_grid_thw(num_queries).unsqueeze(0),
+    }
+
+
 def resolve_record_image(record: dict[str, Any], data_root: Path) -> Path:
     image = record.get("image")
     if not isinstance(image, str):
@@ -196,6 +279,7 @@ class QwenBridgeDataset(Dataset):
         image_token_id: int,
         num_queries: int = 64,
         max_length: int = 512,
+        first_exchange_only: bool = False,
     ) -> None:
         self.annotation_path = Path(annotation_path).expanduser().resolve()
         self.data_root = Path(data_root).expanduser().resolve()
@@ -212,13 +296,17 @@ class QwenBridgeDataset(Dataset):
         self.image_token_id = image_token_id
         self.num_queries = num_queries
         self.max_length = max_length
+        self.first_exchange_only = first_exchange_only
 
     def __len__(self) -> int:
         return len(self.records)
 
     def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
+        record = self.records[index]
+        if self.first_exchange_only:
+            record = first_assistant_exchange(record)
         return prepare_bridge_example(
-            self.records[index],
+            record,
             data_root=self.data_root,
             tokenizer=self.tokenizer,
             so400m_processor=self.so400m_processor,

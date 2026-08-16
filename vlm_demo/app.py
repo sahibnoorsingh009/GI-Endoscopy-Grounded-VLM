@@ -231,6 +231,7 @@ with gr.Blocks(title="GI Endoscopy Grounded VLM Interface") as demo:
         with gr.Column(scale=7):
             gr.Markdown("## Ask about the model outputs")
             chatbot = gr.Chatbot(
+                type="messages",
                 height=390,
                 label="Grounded assistant",
             )

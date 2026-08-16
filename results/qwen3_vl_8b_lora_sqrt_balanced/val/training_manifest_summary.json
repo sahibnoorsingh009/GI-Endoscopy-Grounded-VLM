@@ -1,0 +1,124 @@
+{
+  "balanced_samples": 9971,
+  "classes": {
+    "barretts": {
+      "factor": 5.275862068965517,
+      "source": 29,
+      "target": 153
+    },
+    "barretts-short-segment": {
+      "factor": 4.675675675675675,
+      "source": 37,
+      "target": 173
+    },
+    "bbps-0-1": {
+      "factor": 1.334070796460177,
+      "source": 452,
+      "target": 603
+    },
+    "bbps-2-3": {
+      "factor": 1.0,
+      "source": 804,
+      "target": 804
+    },
+    "cecum": {
+      "factor": 1.0679886685552409,
+      "source": 706,
+      "target": 754
+    },
+    "dyed-lifted-polyps": {
+      "factor": 1.0712250712250713,
+      "source": 702,
+      "target": 752
+    },
+    "dyed-resection-margins": {
+      "factor": 1.077922077922078,
+      "source": 693,
+      "target": 747
+    },
+    "esophagitis-a": {
+      "factor": 1.7205882352941178,
+      "source": 272,
+      "target": 468
+    },
+    "esophagitis-b-d": {
+      "factor": 2.228395061728395,
+      "source": 162,
+      "target": 361
+    },
+    "hemorrhoids": {
+      "factor": 8.0,
+      "source": 4,
+      "target": 32
+    },
+    "ileum": {
+      "factor": 8.0,
+      "source": 7,
+      "target": 56
+    },
+    "impacted-stool": {
+      "factor": 2.978021978021978,
+      "source": 91,
+      "target": 271
+    },
+    "polyps": {
+      "factor": 1.0569444444444445,
+      "source": 720,
+      "target": 761
+    },
+    "pylorus": {
+      "factor": 1.0729613733905579,
+      "source": 699,
+      "target": 750
+    },
+    "retroflex-rectum": {
+      "factor": 1.7179487179487178,
+      "source": 273,
+      "target": 469
+    },
+    "retroflex-stomach": {
+      "factor": 1.2284644194756553,
+      "source": 534,
+      "target": 656
+    },
+    "ulcerative-colitis-grade-0-1": {
+      "factor": 5.68,
+      "source": 25,
+      "target": 142
+    },
+    "ulcerative-colitis-grade-1": {
+      "factor": 2.3900709219858154,
+      "source": 141,
+      "target": 337
+    },
+    "ulcerative-colitis-grade-1-2": {
+      "factor": 8.0,
+      "source": 7,
+      "target": 56
+    },
+    "ulcerative-colitis-grade-2": {
+      "factor": 1.6129032258064515,
+      "source": 310,
+      "target": 500
+    },
+    "ulcerative-colitis-grade-2-3": {
+      "factor": 6.35,
+      "source": 20,
+      "target": 127
+    },
+    "ulcerative-colitis-grade-3": {
+      "factor": 2.946236559139785,
+      "source": 93,
+      "target": 274
+    },
+    "z-line": {
+      "factor": 1.111963190184049,
+      "source": 652,
+      "target": 725
+    }
+  },
+  "max_repeat": 8,
+  "seed": 42,
+  "source_samples": 7433,
+  "strategy": "capped_square_root"
+}

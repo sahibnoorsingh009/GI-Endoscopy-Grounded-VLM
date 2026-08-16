@@ -1,0 +1,203 @@
+{
+  "accuracy": 0.3130434782608696,
+  "adapter_path": "/workspace/qwen-runs/qwen3-vl-8b-lora-sqrt-balanced-seed42/checkpoint-400",
+  "balanced_accuracy": 0.2500557413600892,
+  "macro_f1": 0.20075359423185507,
+  "mean_inference_seconds": 0.39330251964376023,
+  "model_id": "Qwen/Qwen3-VL-8B-Instruct",
+  "peak_gpu_memory_gib": 16.85307741165161,
+  "per_class": {
+    "barretts": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 6,
+      "true_positive": 0
+    },
+    "barretts-short-segment": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 8,
+      "true_positive": 0
+    },
+    "bbps-0-1": {
+      "f1": 0.17307692307692307,
+      "precision": 0.0989010989010989,
+      "predicted": 91,
+      "recall": 0.6923076923076923,
+      "support": 13,
+      "true_positive": 9
+    },
+    "bbps-2-3": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 13,
+      "true_positive": 0
+    },
+    "cecum": {
+      "f1": 0.8333333333333333,
+      "precision": 0.9090909090909091,
+      "predicted": 11,
+      "recall": 0.7692307692307693,
+      "support": 13,
+      "true_positive": 10
+    },
+    "dyed-lifted-polyps": {
+      "f1": 0.4727272727272727,
+      "precision": 0.30952380952380953,
+      "predicted": 42,
+      "recall": 1.0,
+      "support": 13,
+      "true_positive": 13
+    },
+    "dyed-resection-margins": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 13,
+      "true_positive": 0
+    },
+    "esophagitis-a": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 6,
+      "recall": 0.0,
+      "support": 13,
+      "true_positive": 0
+    },
+    "esophagitis-b-d": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 13,
+      "true_positive": 0
+    },
+    "hemorrhoids": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 1,
+      "true_positive": 0
+    },
+    "ileum": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 1,
+      "true_positive": 0
+    },
+    "impacted-stool": {
+      "f1": 0.6363636363636364,
+      "precision": 0.7777777777777778,
+      "predicted": 9,
+      "recall": 0.5384615384615384,
+      "support": 13,
+      "true_positive": 7
+    },
+    "polyps": {
+      "f1": 0.6923076923076923,
+      "precision": 0.6923076923076923,
+      "predicted": 13,
+      "recall": 0.6923076923076923,
+      "support": 13,
+      "true_positive": 9
+    },
+    "pylorus": {
+      "f1": 0.6428571428571429,
+      "precision": 0.6,
+      "predicted": 15,
+      "recall": 0.6923076923076923,
+      "support": 13,
+      "true_positive": 9
+    },
+    "retroflex-rectum": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 13,
+      "true_positive": 0
+    },
+    "retroflex-stomach": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 12,
+      "true_positive": 0
+    },
+    "ulcerative-colitis-grade-0-1": {
+      "f1": 0.33333333333333337,
+      "precision": 1.0,
+      "predicted": 1,
+      "recall": 0.2,
+      "support": 5,
+      "true_positive": 1
+    },
+    "ulcerative-colitis-grade-1": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 12,
+      "true_positive": 0
+    },
+    "ulcerative-colitis-grade-1-2": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 2,
+      "true_positive": 0
+    },
+    "ulcerative-colitis-grade-2": {
+      "f1": 0.3333333333333333,
+      "precision": 0.3333333333333333,
+      "predicted": 12,
+      "recall": 0.3333333333333333,
+      "support": 12,
+      "true_positive": 4
+    },
+    "ulcerative-colitis-grade-2-3": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 2,
+      "recall": 0.0,
+      "support": 4,
+      "true_positive": 0
+    },
+    "ulcerative-colitis-grade-3": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "predicted": 0,
+      "recall": 0.0,
+      "support": 12,
+      "true_positive": 0
+    },
+    "z-line": {
+      "f1": 0.5,
+      "precision": 0.35714285714285715,
+      "predicted": 28,
+      "recall": 0.8333333333333334,
+      "support": 12,
+      "true_positive": 10
+    }
+  },
+  "raw_exact_match_rate": 0.3130434782608696,
+  "requested_limit": 230,
+  "samples": 230,
+  "seed": 42,
+  "selection": "balanced_subset",
+  "split": "val",
+  "unparseable_count": 0,
+  "unparseable_rate": 0.0
+}

@@ -1,0 +1,18 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  syntax-and-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Python syntax
+        run: python -m compileall -q app.py vlm_demo src scripts tests
+      - name: Check repository structure
+        run: python tests/test_repository_structure.py

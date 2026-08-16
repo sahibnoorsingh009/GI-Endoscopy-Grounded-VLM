@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this research software, please cite this repository."
+title: "GI Endoscopy Grounded VLM Interface"
+type: software
+authors:
+  - family-names: Singh
+    given-names: Sahibnoor
+repository-code: "https://github.com/sahibnoorsingh009/GI-Endoscopy-Grounded-VLM"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-08-16
+keywords:
+  - gastrointestinal endoscopy
+  - SigLIP2
+  - image classification
+  - medical image segmentation
+  - grounded question answering

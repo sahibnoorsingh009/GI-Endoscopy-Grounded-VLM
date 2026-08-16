@@ -1,0 +1,50 @@
+experiment_name: siglip2_full
+model:
+  name: siglip2_unet
+  checkpoint: google/siglip2-base-patch16-naflex
+  train_mode: full
+  partial_last_n: 4
+  feature_layers: [3, 6, 9, 12]
+  decoder_channels: 256
+  out_channels: 1
+  max_num_patches: 400
+
+data:
+  image_dir: /workspace/data/kvasir-seg/download/Kvasir-SEG/Kvasir-SEG/images
+  mask_dir: /workspace/data/kvasir-seg/download/Kvasir-SEG/Kvasir-SEG/masks
+  internal_train_split: splits/internal_train.txt
+  internal_val_split: splits/internal_val.txt
+  official_test_split: splits/official_test.txt
+  image_size: 320
+  num_workers: 8
+
+training:
+  seed: 42
+  epochs: 150
+  batch_size: 8
+  optimizer: adamw
+  encoder_lr: 0.00001
+  decoder_lr: 0.0001
+  weight_decay: 0.01
+  loss: dice
+  threshold: 0.5
+  patience: 30
+  min_delta: 0.0001
+  amp: true
+  grad_clip: 1.0
+  selection_metric: dice
+
+augmentation:
+  horizontal_flip: 0.5
+  vertical_flip: 0.1
+  rotate_limit: 20
+  scale_limit: 0.15
+  brightness_contrast: 0.25
+  random_crop_scale_min: 0.85
+  coarse_dropout: 0.25
+
+output:
+  checkpoint_root: checkpoints
+  history_root: results/history
+  prediction_root: results/predictions
+  qualitative_root: results/qualitative

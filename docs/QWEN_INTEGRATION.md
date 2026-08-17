@@ -115,6 +115,60 @@ The full run must start from a fresh bridge because the pilot uses a shortened
 cosine schedule. Interrupted full runs can continue exactly from their latest
 optimizer boundary with `--resume-from latest`.
 
+### Native-Qwen visual-token distillation
+
+Direct category-loss alignment is retained as an ablation. If it remains below
+the native-Qwen validation baseline, the next stage teaches the bridge Qwen's
+expected visual-token geometry before category fine-tuning. The native Qwen
+visual tower and its selected LoRA remain frozen. Dynamic native grids are
+spatially resampled into an ordered 8-by-8 grid, matching the bridge's 64-token
+contract.
+
+Verify the teacher contract on one training image before caching any tokens:
+
+```bash
+python scripts/smoke_test_qwen_teacher.py \
+  --qwen-adapter /workspace/qwen-runs/qwen3-vl-8b-lora-sqrt-balanced-seed42/checkpoint-400 \
+  --data-root /workspace/qwen-data/hyperkvasir
+```
+
+Build a separate 16-image cache pilot before the full training cache:
+
+```bash
+python scripts/cache_qwen_teacher_tokens.py \
+  --output-dir /workspace/qwen-data/qwen-teacher-cache-pilot16 \
+  --qwen-adapter /workspace/qwen-runs/qwen3-vl-8b-lora-sqrt-balanced-seed42/checkpoint-400 \
+  --data-root /workspace/qwen-data/hyperkvasir \
+  --limit 16 \
+  --batch-size 4 \
+  --shard-size 8
+```
+
+The cache uses only the official training split, stores BF16 tensors in atomic
+safetensors shards, and can resume a full run at its last completed shard.
+
+Run a 10-step distillation pilot against the 16-image cache before training on
+the complete teacher cache:
+
+```bash
+python scripts/train_qwen_bridge_distillation.py \
+  --teacher-cache /workspace/qwen-data/qwen-teacher-cache-pilot16 \
+  --output-dir /workspace/qwen-runs/so400m-qwen-distill-pilot10 \
+  --so400m-checkpoint "$SO400M_CKPT" \
+  --limit 16 \
+  --batch-size 4 \
+  --gradient-accumulation-steps 1 \
+  --epochs 3 \
+  --max-steps 10 \
+  --save-steps 5 \
+  --log-steps 1 \
+  --num-workers 0
+```
+
+Distillation optimizes normalized token MSE, token cosine distance, and a small
+embedding-norm term. Qwen and SO400M remain frozen; only the 36.7M bridge
+parameters are updated.
+
 ## Claims
 
 Adding Qwen does not by itself make the system a foundation model. A foundation

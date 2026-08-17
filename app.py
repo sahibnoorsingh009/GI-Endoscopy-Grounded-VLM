@@ -25,7 +25,5 @@ if __name__ == "__main__":
         server_name=host,
         server_port=port,
         show_error=True,
-        theme=gr.themes.Soft(),
-        css=CSS,
         auth=_optional_basic_auth(),
     )

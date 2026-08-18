@@ -190,7 +190,7 @@ the six-image deployment sanity check.
     ├── demo/examples/images/      # Six research examples
     ├── docs/VALIDATION.md         # Metrics and geometry validation
     ├── scripts/                   # Setup, download, checks, smoke test
-    ├── src/models/                # Segmentation architecture
+    ├── src/models/                # Classification, Segmentation architectures
     ├── tests/                     # Lightweight repository checks
     └── vlm_demo/                  # UI and two-branch inference service
 

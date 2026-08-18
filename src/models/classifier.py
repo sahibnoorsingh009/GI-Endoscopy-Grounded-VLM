@@ -205,68 +205,83 @@ class TwoStageClassifier(nn.Module):
             },
         }
 
-
     @torch.no_grad()
     def predict(
         self,
-        image: str | Path | Image.Image,
+        image: str | Path | Image.Image | np.ndarray,
         top_k: int = 5,
-    ) -> dict[str, Any]:
+    ):
     
         if isinstance(image, (str, Path)):
             image = Image.open(image).convert("RGB")
+    
         elif isinstance(image, Image.Image):
             image = image.convert("RGB")
+    
+        elif isinstance(image, np.ndarray):
+            image = Image.fromarray(image).convert("RGB")
+    
         else:
-            raise TypeError("image must be a path or PIL.Image.Image")
+            raise TypeError("image must be a path, PIL.Image.Image, or numpy.ndarray")
+
+        if self.device.type == "cuda":
+            torch.cuda.synchronize()
+    
+        start = time.perf_counter()
     
         coarse = self.predict_coarse(image)
-        coarse_label = coarse["label"]
-        coarse_conf = coarse["confidence"]
         coarse_scores = coarse["scores"]
     
-        final_scores: dict[str, float] = {}
+        all_scores: dict[str, float] = {}
     
-        for label, coarse_prob in coarse_scores.items():
+        for coarse_label, coarse_prob in coarse_scores.items():
     
-            if label not in self.merge_to_module_key:
-                final_scores[label] = coarse_prob
+            # Normal leaf -> keep coarse probability directly
+            if coarse_label not in self.merge_to_module_key:
+                all_scores[coarse_label] = float(coarse_prob)
                 continue
-
-            fine = self.predict_fine(image=image, merge_label=label,)
+    
+            # Merge group -> distribute coarse probability
+            # across specialist leaf probabilities
+            fine = self.predict_fine(
+                image=image,
+                merge_label=coarse_label,
+            )
     
             for fine_label, fine_prob in fine["scores"].items():
-                final_scores[fine_label] = coarse_prob * fine_prob
-    
-        ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True,)
-    
-        top_scores = dict(ranked[:top_k])
-    
-        if coarse_label in self.merge_to_module_key:
-            routed_fine = self.predict_fine(image=image, merge_label=coarse_label,)
+                all_scores[fine_label] = (
+                    float(coarse_prob) * float(fine_prob)
+                )
 
-            route_info = {
-                "route": coarse_label,
-                "coarse_prediction": coarse_label,
-                "coarse_confidence": coarse_conf,
-                "fine_prediction": routed_fine["label"],
-                "fine_confidence": routed_fine["confidence"],
+        ranked = sorted(
+            all_scores.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+    
+        top_k = min(max(int(top_k), 1), len(ranked))
+    
+        top_predictions = [
+            {
+                "rank": rank,
+                "label": label,
+                "display_label": label.replace("-", " ").strip().title(),
+                "softmax_score": float(score),
             }
+            for rank, (label, score) in enumerate(
+                ranked[:top_k],
+                start=1,
+            )
+        ]
     
-        else:
-            route_info = {
-                "route": "direct_leaf",
-                "coarse_prediction": coarse_label,
-                "coarse_confidence": coarse_conf,
-                "fine_prediction": None,
-                "fine_confidence": None,
-            }
+        if self.device.type == "cuda":
+            torch.cuda.synchronize()
     
-        return {"scores": top_scores, "info": route_info,}
-
-
+        classification_seconds = time.perf_counter() - start
+    
+        return top_predictions, all_scores, classification_seconds
   
-    def forward(self, image: str | Path | Image.Image) -> dict[str, Any]:
+    def forward(self, image: str | Path | Image.Image):
         return self.predict(image)
 
 

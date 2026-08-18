@@ -6,7 +6,7 @@ from pathlib import Path
 import gradio as gr
 import pandas as pd
 
-from .inference import GroundedGIService, grounded_answer
+from .inference_new import GroundedGIService, grounded_answer
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]

@@ -10,7 +10,7 @@ if str(REPOSITORY_ROOT) not in sys.path:
 
 from PIL import Image
 
-from vlm_demo.inference_new import GroundedGIService
+from vlm_demo.inference import GroundedGIService
 
 
 EXAMPLE = (
